@@ -9,7 +9,7 @@ st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
 st.title("🐱🐶 Cat vs Dog Classifier")
 
 # URL API inference Hugging Face (ubah sesuai modelmu)
-API_URL = "https://cat-dog-classification.asdjbfag.hf.space/predict"
+API_URL = "https://asdjbfag-cat-dog-classification.hf.space/predict"
 
 # Jika endpoint butuh autentikasi tambahkan token kamu
 headers = {"Authorization": "Bearer HF_API_KEY"}  # isi tokenmu
