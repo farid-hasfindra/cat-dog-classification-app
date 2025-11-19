@@ -11,6 +11,7 @@ st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout=
 st.markdown("""
 <style>
 .main { background: linear-gradient(135deg, #f4faff, #eaf6ff); }
+
 .upload-container {
     text-align: center;
     border: 2px dashed #4aa3f0;
@@ -19,6 +20,22 @@ st.markdown("""
     background: #ffffffcc;
     margin-bottom: 20px;
 }
+
+/* Button style */
+button[kind="secondary"], .stButton>button {
+    background-color: #4aa3f0 !important;
+    color: white !important;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #1f8de0 !important;
+}
+
 .result-box {
     padding: 20px;
     border-radius: 15px;
@@ -56,18 +73,19 @@ st.markdown("</div>", unsafe_allow_html=True)
 if uploaded_file:
     image = Image.open(uploaded_file)
 
-    col1, col2 = st.columns([1, 1.2])  # gambar : result area
+    # Layout: Left = Image | Right = Prediction + Result
+    col1, col2 = st.columns([1, 1.2])
 
+    # Tampilkan gambar lebih kecil
     with col1:
-        st.image(image, caption="Uploaded Image", use_container_width=True)
+        st.image(image, caption="Uploaded Image", width=250)
 
+    # Convert to bytes
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     img_bytes = img_bytes.getvalue()
 
     with col2:
-        st.write("")
-
         predict_btn = st.button("🚀 Predict Now", use_container_width=True)
 
         if predict_btn:
@@ -77,7 +95,6 @@ if uploaded_file:
                                              files={"file": ("image.png", img_bytes, "image/png")})
                     raw_text = response.text
 
-                    # Extract JSON cleanly
                     json_start = raw_text.find("{")
                     json_end = raw_text.rfind("}") + 1
                     result = json.loads(raw_text[json_start:json_end])
