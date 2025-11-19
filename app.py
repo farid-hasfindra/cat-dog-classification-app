@@ -12,10 +12,10 @@ st.markdown("""
 <style>
 .main { background: linear-gradient(135deg, #f4faff, #eaf6ff); }
 
-/* Remove spacing on top */
+/* Adjust top spacing slightly */
 .block-container {
-    padding-top: 0rem !important;
-    margin-top: -3rem !important;
+    padding-top: 1rem !important;
+    margin-top: -1rem !important;
 }
 header {visibility: hidden;}
 
@@ -52,6 +52,7 @@ button:hover {
     width: 100%;
 }
 </style>
+
 """, unsafe_allow_html=True)
 
 st.title("🐱🐶 Cat vs Dog Classifier")
