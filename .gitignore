@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+env/
+
+# Streamlit cache
+.streamlit/
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Uploaded media (optional)
+uploads/
+
+# Credentials / API keys (IMPORTANT! Keep secrets out of GitHub)
+*.env
+secrets.json
