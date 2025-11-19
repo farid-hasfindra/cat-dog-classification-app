@@ -12,6 +12,13 @@ st.markdown("""
 <style>
 .main { background: linear-gradient(135deg, #f4faff, #eaf6ff); }
 
+/* Remove spacing on top */
+.block-container {
+    padding-top: 0rem !important;
+    margin-top: -3rem !important;
+}
+header {visibility: hidden;}
+
 .upload-container {
     text-align: center;
     border: 2px dashed #4aa3f0;
@@ -73,14 +80,12 @@ st.markdown("</div>", unsafe_allow_html=True)
 if uploaded_file:
     image = Image.open(uploaded_file)
 
-    # Layout: Left = Image | Right = Prediction + Result
+    # Layout: Image - Prediction Side by Side
     col1, col2 = st.columns([1, 1.2])
 
-    # Tampilkan gambar lebih kecil
     with col1:
         st.image(image, caption="Uploaded Image", width=350)
 
-    # Convert to bytes
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     img_bytes = img_bytes.getvalue()
