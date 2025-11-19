@@ -113,10 +113,10 @@ with col2:
                 st.markdown("<div class='result-box'>", unsafe_allow_html=True)
 
                 if prediction == "cat":
-                    st.success("😺 Hasil Prediksi: Ini adalah KUCING!!")
+                    st.success("😺 Hasil Prediksi: Ini KUCING!!")
                     if CAT_LOTTIE: st_lottie(CAT_LOTTIE, height=200)
                 else:
-                    st.success("🐕 Hasil Prediksi: Ini adalah ANJING!!")
+                    st.success("🐕 Hasil Prediksi: Ini ANJING!!")
                     if DOG_LOTTIE: st_lottie(DOG_LOTTIE, height=200)
 
                 st.markdown("</div>", unsafe_allow_html=True)
