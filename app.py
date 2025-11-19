@@ -7,43 +7,36 @@ import json
 
 st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
 
-# Custom CSS for modern UI
-custom_css = """
+# Custom CSS UI
+st.markdown("""
 <style>
-.main {
-    background: linear-gradient(135deg, #f4faff, #eaf6ff);
-}
+.main { background: linear-gradient(135deg, #f4faff, #eaf6ff); }
 .upload-container {
-    text-align: center;
-    border: 2px dashed #4aa3f0;
-    padding: 20px;
-    border-radius: 15px;
-    background: white;
+    text-align: center; border: 2px dashed #4aa3f0;
+    padding: 20px; border-radius: 15px; background: white;
 }
 .result-box {
-    padding: 20px;
-    border-radius: 15px;
-    background: #ffffffcc;
-    backdrop-filter: blur(10px);
-    text-align: center;
-    font-size: 22px;
+    padding: 20px; border-radius: 15px;
+    background: #ffffffcc; backdrop-filter: blur(10px);
+    text-align: center; font-size: 22px;
 }
 </style>
-"""
-st.markdown(custom_css, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 st.title("🐱🐶 Cat vs Dog Classifier")
 
-CAT_LOTTIE = "https://assets2.lottiefiles.com/private_files/lf30_editor_jckcic9a.json"
-DOG_LOTTIE = "https://assets2.lottiefiles.com/private_files/lf30_ud5z4j5o.json"
-LOADING_LOTTIE = "https://assets10.lottiefiles.com/packages/lf20_YXD37q.json"
-
+# Safe load animation with fallback
 def load_lottie(url):
     try:
-        r = requests.get(url)
-        return r.json()
+        r = requests.get(url, timeout=8)
+        data = r.json()
+        if isinstance(data, dict):
+            return data
     except:
         return None
+
+CAT_LOTTIE = load_lottie("https://lottie.host/5cd0bddd-122f-4cab-bde5-8a67fe93a9f5/BUD2zmNwVt.json")
+DOG_LOTTIE = load_lottie("https://lottie.host/9da15633-31d8-477a-b52c-e43efc3fea6b/0J5ZJRU1S0.json")
 
 API_URL = "https://asdjbfag-cat-dog-classification.hf.space/predict"
 headers = {}
@@ -52,40 +45,37 @@ st.markdown("<div class='upload-container'>", unsafe_allow_html=True)
 uploaded_file = st.file_uploader("📤 Upload Image", type=["jpg", "jpeg", "png"])
 st.markdown("</div>", unsafe_allow_html=True)
 
-if uploaded_file is not None:
+if uploaded_file:
     image = Image.open(uploaded_file)
     st.image(image, caption="Uploaded Image", use_container_width=True)
 
-    buffered = io.BytesIO()
-    image.save(buffered, format="PNG")
-    img_bytes = buffered.getvalue()
+    img_bytes = io.BytesIO()
+    image.save(img_bytes, format="PNG")
+    img_bytes = img_bytes.getvalue()
 
     if st.button("🚀 Predict Now", use_container_width=True):
-        with st.spinner("AI is analyzing the image... 🧠🐾"):
-            st_lottie(load_lottie(LOADING_LOTTIE), height=200)
 
-            files = {"file": ("image.png", img_bytes, "image/png")}
+        with st.spinner("AI is analyzing the image... 🧠🐾"):
             try:
-                response = requests.post(API_URL, headers=headers, files=files, timeout=30)
+                response = requests.post(API_URL, headers=headers, files={"file": ("image.png", img_bytes, "image/png")})
                 raw_text = response.text
 
-                # Ambil JSON valid di dalam response
+                # Extract JSON cleanly
                 json_start = raw_text.find("{")
                 json_end = raw_text.rfind("}") + 1
-                json_str = raw_text[json_start:json_end]
+                result = json.loads(raw_text[json_start:json_end])
 
-                result = json.loads(json_str)
-                prediction = result.get("prediction", "Unknown")
+                prediction = result.get("prediction", "unknown").lower()
 
                 st.subheader("🔍 Prediction Result")
                 st.markdown("<div class='result-box'>", unsafe_allow_html=True)
 
-                if prediction.lower() == "cat":
+                if prediction == "cat":
                     st.success("🐱 It's a CAT!")
-                    st_lottie(load_lottie(CAT_LOTTIE), height=200)
+                    if CAT_LOTTIE: st_lottie(CAT_LOTTIE, height=200)
                 else:
                     st.success("🐶 It's a DOG!")
-                    st_lottie(load_lottie(DOG_LOTTIE), height=200)
+                    if DOG_LOTTIE: st_lottie(DOG_LOTTIE, height=200)
 
                 st.markdown("</div>", unsafe_allow_html=True)
 
