@@ -5,27 +5,38 @@ import io
 from streamlit_lottie import st_lottie
 import json
 
-st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
+st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout="centered")
 
-# Custom CSS UI
+# Custom UI Styles
 st.markdown("""
 <style>
 .main { background: linear-gradient(135deg, #f4faff, #eaf6ff); }
 .upload-container {
-    text-align: center; border: 2px dashed #4aa3f0;
-    padding: 20px; border-radius: 15px; background: white;
+    text-align: center;
+    border: 2px dashed #4aa3f0;
+    padding: 20px;
+    border-radius: 15px;
+    background: #ffffffcc;
+    margin-bottom: 20px;
 }
 .result-box {
-    padding: 20px; border-radius: 15px;
-    background: #ffffffcc; backdrop-filter: blur(10px);
-    text-align: center; font-size: 22px;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #ffffffcc;
+    text-align: center;
+    font-size: 22px;
+}
+.center {
+    display: flex;
+    justify-content: center;
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("🐱🐶 Cat vs Dog Classifier")
 
-# Safe load animation with fallback
+# Safe animation loading
 def load_lottie(url):
     try:
         r = requests.get(url, timeout=8)
@@ -41,26 +52,34 @@ DOG_LOTTIE = load_lottie("https://lottie.host/9da15633-31d8-477a-b52c-e43efc3fea
 API_URL = "https://asdjbfag-cat-dog-classification.hf.space/predict"
 headers = {}
 
+# Upload UI
 st.markdown("<div class='upload-container'>", unsafe_allow_html=True)
 uploaded_file = st.file_uploader("📤 Upload Image", type=["jpg", "jpeg", "png"])
 st.markdown("</div>", unsafe_allow_html=True)
 
+# Display image + button
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_container_width=True)
+
+    # Center + Smaller Size 👌
+    st.markdown("<div class='center'>", unsafe_allow_html=True)
+    st.image(image, caption="Uploaded Image", width=300)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     img_bytes = img_bytes.getvalue()
 
+    # Predict Button
     if st.button("🚀 Predict Now", use_container_width=True):
-
         with st.spinner("AI is analyzing the image... 🧠🐾"):
+
             try:
-                response = requests.post(API_URL, headers=headers, files={"file": ("image.png", img_bytes, "image/png")})
+                response = requests.post(API_URL, headers=headers,
+                                         files={"file": ("image.png", img_bytes, "image/png")})
                 raw_text = response.text
 
-                # Extract JSON cleanly
+                # Clean JSON extract
                 json_start = raw_text.find("{")
                 json_end = raw_text.rfind("}") + 1
                 result = json.loads(raw_text[json_start:json_end])
@@ -81,5 +100,7 @@ if uploaded_file:
 
             except Exception as e:
                 st.error("🚨 Error processing request!")
-                st.write(raw_text)
                 st.text(str(e))
+                st.write(raw_text)
+                
+                
