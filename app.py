@@ -3,6 +3,9 @@ import requests
 from PIL import Image
 import io
 from streamlit_lottie import st_lottie
+import json
+
+st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
 
 # Custom CSS for modern UI
 custom_css = """
@@ -20,38 +23,31 @@ custom_css = """
 .result-box {
     padding: 20px;
     border-radius: 15px;
-    background: #ffffffaa;
+    background: #ffffffcc;
     backdrop-filter: blur(10px);
     text-align: center;
     font-size: 22px;
-}
-h1, h2, h3, h4 {
-    text-align: center;
-    font-family: 'Segoe UI', sans-serif;
 }
 </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾")
-
-# Title with animation
 st.title("🐱🐶 Cat vs Dog Classifier")
 
-# Animation assets
 CAT_LOTTIE = "https://assets2.lottiefiles.com/private_files/lf30_editor_jckcic9a.json"
 DOG_LOTTIE = "https://assets2.lottiefiles.com/private_files/lf30_ud5z4j5o.json"
 LOADING_LOTTIE = "https://assets10.lottiefiles.com/packages/lf20_YXD37q.json"
 
 def load_lottie(url):
-    r = requests.get(url)
-    return r.json()
+    try:
+        r = requests.get(url)
+        return r.json()
+    except:
+        return None
 
-# API URL
 API_URL = "https://asdjbfag-cat-dog-classification.hf.space/predict"
 headers = {}
 
-# Upload UI
 st.markdown("<div class='upload-container'>", unsafe_allow_html=True)
 uploaded_file = st.file_uploader("📤 Upload Image", type=["jpg", "jpeg", "png"])
 st.markdown("</div>", unsafe_allow_html=True)
@@ -69,11 +65,16 @@ if uploaded_file is not None:
             st_lottie(load_lottie(LOADING_LOTTIE), height=200)
 
             files = {"file": ("image.png", img_bytes, "image/png")}
-
             try:
                 response = requests.post(API_URL, headers=headers, files=files, timeout=30)
-                response.raise_for_status()
-                result = response.json()
+                raw_text = response.text
+
+                # Ambil JSON valid di dalam response
+                json_start = raw_text.find("{")
+                json_end = raw_text.rfind("}") + 1
+                json_str = raw_text[json_start:json_end]
+
+                result = json.loads(json_str)
                 prediction = result.get("prediction", "Unknown")
 
                 st.subheader("🔍 Prediction Result")
@@ -90,6 +91,5 @@ if uploaded_file is not None:
 
             except Exception as e:
                 st.error("🚨 Error processing request!")
+                st.write(raw_text)
                 st.text(str(e))
-                if 'response' in locals():
-                    st.write(response.text)
