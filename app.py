@@ -5,7 +5,7 @@ import io
 from streamlit_lottie import st_lottie
 import json
 
-st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout="centered")
+st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout="wide")
 
 # Custom UI Styles
 st.markdown("""
@@ -20,16 +20,12 @@ st.markdown("""
     margin-bottom: 20px;
 }
 .result-box {
-    margin-top: 20px;
     padding: 20px;
     border-radius: 15px;
     background: #ffffffcc;
     text-align: center;
     font-size: 22px;
-}
-.center {
-    display: flex;
-    justify-content: center;
+    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -57,50 +53,50 @@ st.markdown("<div class='upload-container'>", unsafe_allow_html=True)
 uploaded_file = st.file_uploader("📤 Upload Image", type=["jpg", "jpeg", "png"])
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Display image + button
 if uploaded_file:
     image = Image.open(uploaded_file)
 
-    # Center + Smaller Size 👌
-    st.markdown("<div class='center'>", unsafe_allow_html=True)
-    st.image(image, caption="Uploaded Image", width=300)
-    st.markdown("</div>", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 1.2])  # gambar : result area
+
+    with col1:
+        st.image(image, caption="Uploaded Image", use_container_width=True)
 
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     img_bytes = img_bytes.getvalue()
 
-    # Predict Button
-    if st.button("🚀 Predict Now", use_container_width=True):
-        with st.spinner("AI is analyzing the image... 🧠🐾"):
+    with col2:
+        st.write("")
 
-            try:
-                response = requests.post(API_URL, headers=headers,
-                                         files={"file": ("image.png", img_bytes, "image/png")})
-                raw_text = response.text
+        predict_btn = st.button("🚀 Predict Now", use_container_width=True)
 
-                # Clean JSON extract
-                json_start = raw_text.find("{")
-                json_end = raw_text.rfind("}") + 1
-                result = json.loads(raw_text[json_start:json_end])
+        if predict_btn:
+            with st.spinner("AI is analyzing... 🧠🐾"):
+                try:
+                    response = requests.post(API_URL, headers=headers,
+                                             files={"file": ("image.png", img_bytes, "image/png")})
+                    raw_text = response.text
 
-                prediction = result.get("prediction", "unknown").lower()
+                    # Extract JSON cleanly
+                    json_start = raw_text.find("{")
+                    json_end = raw_text.rfind("}") + 1
+                    result = json.loads(raw_text[json_start:json_end])
 
-                st.subheader("🔍 Prediction Result")
-                st.markdown("<div class='result-box'>", unsafe_allow_html=True)
+                    prediction = result.get("prediction", "unknown").lower()
 
-                if prediction == "cat":
-                    st.success("🐱 It's a CAT!")
-                    if CAT_LOTTIE: st_lottie(CAT_LOTTIE, height=200)
-                else:
-                    st.success("🐶 It's a DOG!")
-                    if DOG_LOTTIE: st_lottie(DOG_LOTTIE, height=200)
+                    st.subheader("🔍 Prediction Result")
+                    st.markdown("<div class='result-box'>", unsafe_allow_html=True)
 
-                st.markdown("</div>", unsafe_allow_html=True)
+                    if prediction == "cat":
+                        st.success("🐱 It's a CAT!")
+                        if CAT_LOTTIE: st_lottie(CAT_LOTTIE, height=200)
+                    else:
+                        st.success("🐶 It's a DOG!")
+                        if DOG_LOTTIE: st_lottie(DOG_LOTTIE, height=200)
 
-            except Exception as e:
-                st.error("🚨 Error processing request!")
-                st.text(str(e))
-                st.write(raw_text)
-                
-                
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                except Exception as e:
+                    st.error("🚨 Error processing request!")
+                    st.write(raw_text)
+                    st.text(str(e))
