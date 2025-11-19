@@ -39,13 +39,12 @@ if uploaded_file is not None:
 
                 result = response.json()
 
-                # Sesuaikan format JSON API Hugging Face: [{"label": "...", "score": ...}]
-                label = result[0].get("label", "Unknown")
-                score = result[0].get("score", 0.0) * 100
+                # Sesuaikan dengan format API kamu: {"prediction": "dog"}
+                prediction = result.get("prediction", "Unknown")
 
                 with col2:
                     st.subheader("Prediction Result")
-                    st.success(f"**{label}** ({score:.2f}% confidence)")
+                    st.success(f"Prediction: **{prediction.upper()}** 🐾")
 
             except Exception as e:
                 st.error("Error processing request!")
