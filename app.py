@@ -78,7 +78,7 @@ if uploaded_file:
 
     # Tampilkan gambar lebih kecil
     with col1:
-        st.image(image, caption="Uploaded Image", width=250)
+        st.image(image, caption="Uploaded Image", width=350)
 
     # Convert to bytes
     img_bytes = io.BytesIO()
